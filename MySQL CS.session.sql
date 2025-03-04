@@ -1,0 +1,2 @@
+use cs;
+show tables;
