@@ -10,6 +10,8 @@ DROP CONSTRAINT fk_borrower_client;
 ALTER TABLE Book
 DROP CONSTRAINT fk_book_author;
 
+DROP VIEW IF EXISTS PopularBooks;
+
 DROP TABLE Client;
 DROP TABLE Borrower;
 DROP TABLE Book;

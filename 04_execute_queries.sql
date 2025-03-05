@@ -71,8 +71,8 @@ GROUP BY Book.Genre
 ORDER BY Popularity DESC;
 
 -- 8. Top 5 occupations that borrowed the most in 2016
--- Limit the search by borrow date in the year 2016
--- Group by occupation and sort by the most populous
+-- Limit the search by borrow date in the year 2016.
+-- Group by occupation and sort by the most populous.
 SELECT Client.Occupation FROM Client
 JOIN Borrower ON Client.ClientID = Borrower.ClientID
 WHERE Borrower.BorrowDate LIKE '2016%'
@@ -82,7 +82,7 @@ LIMIT 5;
 
 -- 9. Average number of borrowed books by job title
 -- Starting with the inner request
---     Count the number of borrows per client
+--     we count the number of borrows per client.
 -- From that resulting table, we group the results by occupation
 --     enabling us to count the total of borrow per occupation
 --     and then divide safely (using the NULLIF) by the number
@@ -105,30 +105,54 @@ GROUP BY sub.Occupation
 ORDER BY 'Average borrow' DESC;
 
 -- 10. Create a VIEW and display the titles that were borrowed by at least 20% of clients
-SELECT * FROM Borrower
-JOIN Client ON Client.ClientID = Borrower.ClientID
-JOIN Book ON Book.BookID = Borrower.BookID
-ORDER BY Book.BookID;
+-- In the view definition, we aggregate the results by book ID, so that for each book
+--     we can then calculate the ratio of borrowings vs the total number of clients
+--     giving us then, after multiplying with 100, the percentage of clients that
+--     borrowed it.
+-- Finally we filter by percentages of 20% and more with the HAVING clause.
+CREATE VIEW PopularBooks AS
+SELECT Book.*
+FROM Book
+LEFT JOIN Borrower ON Book.BookID = Borrower.BookID
+GROUP BY Book.BookID
+HAVING (COUNT(Borrower.ClientID) / (SELECT COUNT(*) FROM Client) * 100) >= 20;
 
-SELECT *,
-(
-    -- Get number of distinct clients
-    SELECT COUNT(DISTINCT(Client.ClientID))
-    FROM Client
-) AS B,
-FROM 
-(
-    -- Get number of distinct client that borrowed each book
-    SELECT COUNT(DISTINCT(Client.ClientID)) AS 'Distinct Clients',
-        Book.*
-    FROM Client
-        JOIN Borrower on Borrower.ClientID = Client.ClientID
-        JOIN Book on Book.BookID = Borrower.BookID
-    GROUP BY Book.BookID
-) AS A
-GROUP BY BookID;
+-- This is a simple query that uses the newly created view.
+SELECT * FROM PopularBooks;
 
 -- 11. The top month of borrows in 2017
+-- We start by querying all borrows for the year 2017 with the WHERE clause.
+-- Then we isolate the month for each entry and group the results by month.
+-- We count the occurences of borrows by month and sort the results
+--     in a descending order.
+-- By limiting the top result, we obtain the month with the most borrows of 2017.
+SELECT DATE_FORMAT(BorrowDate, '%m') AS Month, COUNT(*) AS Occurences
+FROM Borrower
+WHERE YEAR(Borrower.BorrowDate) = 2017
+GROUP BY DATE_FORMAT(BorrowDate, '%m')
+ORDER BY Occurences DESC
+LIMIT 1;
+
 -- 12. Average number of borrows by age
+-- Starting with the inner request:
+--     We start by getting the age of each client
+--     Then we count the number of borrowed books per client
+-- Now with the outer request, using the inner results, we
+--     group them by age, calculate the average (safely using IFNULL)
+--     of borrows for each age and finally display them in the quiery results
+SELECT sub.Age,
+    ROUND(AVG(IFNULL(sub.BorrowsPerClient, 0)), 2) AS AverageBorrowsPerAge
+FROM (
+        SELECT (YEAR(NOW()) - ClientDoB) AS Age,
+            COUNT(DISTINCT Borrower.BorrowID) AS BorrowsPerClient
+        FROM Client
+            LEFT JOIN Borrower ON Client.ClientID = Borrower.ClientID
+        GROUP BY Client.ClientID,
+            Age
+    ) AS sub
+GROUP BY sub.Age
+ORDER BY sub.Age;
+
 -- 13. The oldest and the youngest clients of the library
+
 -- 14. First and last names of authors that wrote books in more than one genre

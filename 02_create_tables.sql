@@ -4,35 +4,40 @@ USE CS204;
 -- A. Write the SQL statements in order to create the tables for the database
 CREATE TABLE Client
 (
-    ClientID INT PRIMARY KEY,
+    ClientID INT PRIMARY KEY, -- Indexed by default
     ClientFirstName VARCHAR(255) NOT NULL,
     ClientLastName VARCHAR(255) NOT NULL,
     ClientDoB YEAR NOT NULL,
-    Occupation VARCHAR(255)
+    Occupation VARCHAR(255),
+    INDEX idx_job_title (Occupation), -- Index for sorting by occupation.
+    INDEX idx_date_of_birth (ClientDoB) -- Index for sorting by Date of birth.
 );
 
 CREATE TABLE Borrower
 (
-    BorrowID INT PRIMARY KEY,
-    ClientID INT NOT NULL,
-    BookID INT NOT NULL,
-    BorrowDate Date NOT NULL
+    BorrowID INT PRIMARY KEY, -- Indexed by default
+    ClientID INT NOT NULL, -- Indexed by default
+    BookID INT NOT NULL, -- Indexed by default
+    BorrowDate Date NOT NULL,
+    INDEX idx_date (BorrowDate) -- Index for sorting and filtering by borrow date.
 );
 
 CREATE TABLE Book
 (
-    BookID INT PRIMARY KEY,
+    BookID INT PRIMARY KEY, -- Indexed by default
     BookTitle VARCHAR(255) NOT NULL,
-    AuthorID INT NOT NULL,
-    Genre VARCHAR(255)
+    AuthorID INT NOT NULL, -- Indexed by default
+    Genre VARCHAR(255),
+    INDEX idx_genre (Genre) -- Index for sorting and filtering by book genre.
 );
 
 CREATE TABLE Author
 (
-    AuthorID INT PRIMARY KEY,
+    AuthorID INT PRIMARY KEY, -- Indexed by default
     AuthorFirstName VARCHAR(255) NOT NULL,
     AuthorLastName VARCHAR(255) NOT NULL,
-    AuthorNationality VARCHAR(255)
+    AuthorNationality VARCHAR(255),
+    INDEX idx_nationality (AuthorNationality) -- Index for sorting and filtering by Author's nationality
 );
 
 ALTER TABLE Borrower
