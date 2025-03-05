@@ -1,2 +1,0 @@
-use cs;
-show tables;

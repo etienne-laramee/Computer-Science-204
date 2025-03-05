@@ -1,0 +1,7 @@
+USE CS204;
+
+SHOW TABLES;
+DESCRIBE Client;
+DESCRIBE Borrower;
+DESCRIBE Book;
+DESCRIBE Author;
