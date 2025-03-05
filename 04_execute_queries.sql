@@ -154,5 +154,31 @@ GROUP BY sub.Age
 ORDER BY sub.Age;
 
 -- 13. The oldest and the youngest clients of the library
+-- Here we get all the client's informations including their calculated age
+-- Then we filter them by a sub query that looks for the oldest age
+--     and one that looks for the youngest age.
+-- The result is all clients that have the oldest and youngest age.
+-- Unless the assignment asks for only one form each, this query
+--     returns all the clients that are oldest and youngest, allowing
+--     for multiple of each
+SELECT Client.*, YEAR(NOW()) - Client.ClientDoB AS Age FROM Client
+WHERE Client.ClientDoB = (SELECT MIN(Client.ClientDoB) FROM Client)
+OR Client.ClientDoB = (SELECT MAX(Client.ClientDoB) FROM Client)
+ORDER BY Age ASC;
 
 -- 14. First and last names of authors that wrote books in more than one genre
+-- We join the Author and Book tables with a sub table of the number of genres
+--     for each author, which is itself filtered by those who have more than one.
+-- We finally group the results by author and display their first and last name.
+SELECT Author.AuthorFirstName, Author.AuthorLastName
+FROM Author
+JOIN Book ON Author.AuthorID = Book.AuthorID
+JOIN (
+    SELECT COUNT(Genre) AS NbGenres,
+        Genre,
+        AuthorID
+    FROM Book
+    GROUP BY Genre, AuthorID
+    HAVING NbGenres > 1
+) AS sub ON sub.AuthorID = Author.AuthorID
+GROUP BY Author.AuthorID, sub.NbGenres;
