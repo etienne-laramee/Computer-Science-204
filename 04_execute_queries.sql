@@ -6,19 +6,19 @@ FROM Client;
 
 -- 2. First names, last names, ages and occupations of all clients
 -- We calculate age by converting current date to year only and calculate the difference.
-SELECT ClientFirstName AS name,
-    ClientLastName AS 'last name',
-    DATE_FORMAT(NOW(), '%Y') - ClientDoB AS age,
-    Occupation AS occupation
+SELECT Client.ClientFirstName AS name,
+    Client.ClientLastName AS 'last name',
+    DATE_FORMAT(NOW(), '%Y') - Client.ClientDoB AS age,
+    Client.Occupation AS occupation
 FROM Client;
 
 -- 3. First and last names of clients that borrowed books in March 2018
 -- To get all borrowed books in march, we use the wildcard compare to
 --     the year and month of the date only.
-SELECT ClientFirstName, ClientLastName
+SELECT Client.ClientFirstName, Client.ClientLastName
 FROM Client
 JOIN Borrower ON Client.ClientID = Borrower.ClientID
-WHERE BorrowDate LIKE '2018-03-%';
+WHERE Borrower.BorrowDate LIKE '2018-03-%';
 
 -- 4. First and last names of the top 5 authors clients borrowed in 2017
 -- Use a wildcard to compare the borrow dates with the year only.
